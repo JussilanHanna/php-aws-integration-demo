@@ -28,9 +28,18 @@ final class Router
 
         try {
             $handler();
-        } catch (\Throwable $e) {
-            error_log($e); // CloudWatch picks this up when running under web server logs
-            Http::error('Internal Server Error', 500);
+            } catch (\Throwable $e) {
+            error_log($e->__toString());
+
+            $env = \App\Support\Env::get('APP_ENV', 'prod');
+            if ($env === 'local') {
+                \App\Support\Http::error('Internal Server Error', 500, [
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
+            \App\Support\Http::error('Internal Server Error', 500);
         }
     }
 }
