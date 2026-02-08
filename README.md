@@ -1,58 +1,59 @@
 # php-aws-integration-demo
 
-# PHP + AWS Integration Demo
+## PHP + AWS Integration Demo
 
-This project is a simple PHP REST API deployed on AWS.  
-The purpose of this demo is to showcase practical backend development and cloud fundamentals:
+This project is a small real-world style PHP REST API that demonstrates practical backend development and cloud-ready architecture.
 
-- PHP REST API
-- AWS EC2 for hosting
-- AWS RDS for database
-- AWS S3 for file storage
-- AWS IAM & environment variables
-- AWS CloudWatch for logging
+The goal is to showcase:
+- Clean REST API design  
+- Environment-based configuration  
+- Database integration  
+- Cloud service integration (AWS)  
+- Deployable backend service mindset  
 
-This is not a tutorial project – this is a small real-world style integration demo.
+This is not a tutorial project – this is a compact, realistic integration demo.
 
 ---
 
-## 🚀 Architecture
+## 🚀 Architecture (target)
 
 Client  
 → PHP REST API (EC2)  
-→ Database (RDS - MySQL/Postgres)  
+→ Database (RDS - MariaDB/MySQL)  
 → File storage (S3)  
-→ Logs (CloudWatch)
+→ Logs (CloudWatch)  
+
+(Local development uses XAMPP / MariaDB)
 
 ---
 
 ## 🔧 Tech stack
 
-- PHP 8.x
-- Composer
-- AWS EC2
-- AWS RDS
-- AWS S3
-- AWS IAM
-- Nginx + PHP-FPM
-- CloudWatch
+- PHP 8.x  
+- Composer  
+- MariaDB / MySQL  
+- AWS EC2  
+- AWS RDS  
+- AWS S3  
+- AWS IAM  
+- Nginx + PHP-FPM (production target)  
+- CloudWatch  
 
 ---
 
 ## 📦 Features
 
-- GET /health  
-- GET /bookings  
-- POST /bookings  
-- Upload file to S3  
-- Store booking data in RDS  
-- Read configuration from environment variables  
+- `GET /health` – service health check  
+- `GET /bookings` – list bookings  
+- `POST /bookings` – create booking  
+- File upload to AWS S3 (planned)  
+- Store booking data in database  
+- Configuration via environment variables  
+- Basic error handling & logging  
 
 ---
 
-## ⚙️ Setup (local)
+## ⚙️ Environment config
 
 ```bash
-composer install
 cp .env.example .env
-php -S localhost:8000 -t public
