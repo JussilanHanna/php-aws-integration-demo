@@ -13,6 +13,10 @@ The goal is to showcase:
 
 This is not a tutorial project – this is a compact, realistic integration demo.
 
+> **Note**  
+> Docker and MinIO are used locally to emulate AWS services.  
+> The same codebase is designed to run on AWS (EC2 + RDS + S3) by changing environment variables only.
+
 ---
 
 ## 🚀 Architecture (target)
@@ -26,7 +30,7 @@ Client
 **Local development stack:**
 - Docker Compose  
 - MariaDB  
-- MinIO (S3-compatible storage)
+- MinIO (S3-compatible object storage)
 
 ---
 
@@ -50,7 +54,7 @@ Client
 - `GET /health` – service health check  
 - `GET /bookings` – list bookings  
 - `POST /bookings` – create booking  
-- `POST /bookings/{id}/files` – upload file for booking  
+- `POST /bookings/{id}/files` – upload file for a booking  
 - File storage in S3-compatible object storage (MinIO locally)  
 - Presigned download URLs for uploaded files  
 - Store booking data in database  
