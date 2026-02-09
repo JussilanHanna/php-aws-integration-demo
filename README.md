@@ -8,7 +8,7 @@ The goal is to showcase:
 - Clean REST API design  
 - Environment-based configuration  
 - Database integration  
-- Cloud service integration (AWS)  
+- Cloud service integration (AWS-compatible)  
 - Deployable backend service mindset  
 
 This is not a tutorial project – this is a compact, realistic integration demo.
@@ -18,12 +18,15 @@ This is not a tutorial project – this is a compact, realistic integration demo
 ## 🚀 Architecture (target)
 
 Client  
-→ PHP REST API (EC2)  
-→ Database (RDS - MariaDB/MySQL)  
+→ PHP REST API (EC2 / Docker)  
+→ Database (RDS – MariaDB/MySQL)  
 → File storage (S3)  
 → Logs (CloudWatch)  
 
-(Local development uses XAMPP / MariaDB)
+**Local development stack:**
+- Docker Compose  
+- MariaDB  
+- MinIO (S3-compatible storage)
 
 ---
 
@@ -32,12 +35,13 @@ Client
 - PHP 8.x  
 - Composer  
 - MariaDB / MySQL  
-- AWS EC2  
-- AWS RDS  
-- AWS S3  
-- AWS IAM  
+- Docker & Docker Compose  
+- AWS EC2 (target)  
+- AWS RDS (target)  
+- AWS S3 (target)  
+- AWS IAM (target)  
 - Nginx + PHP-FPM (production target)  
-- CloudWatch  
+- CloudWatch (target logging)
 
 ---
 
@@ -46,7 +50,9 @@ Client
 - `GET /health` – service health check  
 - `GET /bookings` – list bookings  
 - `POST /bookings` – create booking  
-- File upload to AWS S3 (planned)  
+- `POST /bookings/{id}/files` – upload file for booking  
+- File storage in S3-compatible object storage (MinIO locally)  
+- Presigned download URLs for uploaded files  
 - Store booking data in database  
 - Configuration via environment variables  
 - Basic error handling & logging  
