@@ -10,8 +10,16 @@ services:
       DB_NAME: demo
       DB_USER: demo_user
       DB_PASSWORD: demo1234
+
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: demo-bucket
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin123
+      S3_PATH_STYLE: "true"
     depends_on:
       - db
+      - minio
 
   db:
     image: mariadb:11
@@ -26,5 +34,31 @@ services:
       - db_data:/var/lib/mysql
       - ./sql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro
 
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until mc alias set local http://minio:9000 minioadmin minioadmin123; do sleep 2; done;
+        mc mb -p local/demo-bucket || true;
+        mc anonymous set download local/demo-bucket || true;
+        echo "MinIO bucket ready";
+
 volumes:
   db_data:
+  minio_data:

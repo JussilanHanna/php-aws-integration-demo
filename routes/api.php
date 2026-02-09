@@ -11,4 +11,7 @@ return function (Router $router): void {
     $router->get('/bookings', fn() => $c->listBookings());
     $router->post('/bookings', fn() => $c->createBooking());
     $router->post('/bookings/upload', fn() => $c->uploadFile());
+    $router->post('/bookings/{id}/files', function ($params) {
+        (new \App\Controllers\BookingFilesController())->upload($params);
+    });
 };

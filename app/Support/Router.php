@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use Closure;
+use ReflectionFunction;
+
 final class Router
 {
     /** @var array<string, array<string, callable>> */
@@ -16,30 +19,53 @@ final class Router
         $this->routes[$method][$path] = $handler;
     }
 
-    public function dispatch(string $method, string $uriPath): void
+    public function dispatch(string $method, string $path)
     {
-        $path = rtrim($uriPath, '/') ?: '/';
-        $method = strtoupper($method);
+        $routes = $this->routes[$method] ?? [];
 
-        $handler = $this->routes[$method][$path] ?? null;
-        if (!$handler) {
-            Http::error('Not Found', 404, ['path' => $path, 'method' => $method]);
-        }
+        foreach ($routes as $routePath => $handler) {
+            // "/bookings/{id}/files" -> ^/bookings/(?P<id>[^/]+)/files$
+            $pattern = preg_replace('#\{([a-zA-Z_][a-zA-Z0-9_]*)\}#', '(?P<$1>[^/]+)', $routePath);
+            $pattern = '#^' . $pattern . '$#';
 
-        try {
-            $handler();
-            } catch (\Throwable $e) {
-            error_log($e->__toString());
-
-            $env = \App\Support\Env::get('APP_ENV', 'prod');
-            if ($env === 'local') {
-                \App\Support\Http::error('Internal Server Error', 500, [
-                    'exception' => get_class($e),
-                    'message' => $e->getMessage(),
-                ]);
+            if (!preg_match($pattern, $path, $matches)) {
+                continue;
             }
 
-            \App\Support\Http::error('Internal Server Error', 500);
+            $params = [];
+            foreach ($matches as $k => $v) {
+                if (!is_int($k)) $params[$k] = $v;
+            }
+
+            try {
+                // Kutsutaan handleria oikein riippuen siitä, odottaako se parametreja vai ei
+                $fn = new ReflectionFunction(Closure::fromCallable($handler));
+                if ($fn->getNumberOfParameters() >= 1) {
+                    return $handler($params);
+                }
+                return $handler();
+            } catch (\Throwable $e) {
+                error_log((string)$e);
+
+                $env = \App\Support\Env::get('APP_ENV', 'prod');
+                if ($env === 'local') {
+                    \App\Support\Http::error('Internal Server Error', 500, [
+                        'exception' => get_class($e),
+                        'message' => $e->getMessage(),
+                    ]);
+                }
+
+                \App\Support\Http::error('Internal Server Error', 500);
+                return null;
+            }
         }
+
+        http_response_code(404);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(
+            ['error' => 'Not Found', 'path' => $path, 'method' => $method],
+            JSON_UNESCAPED_UNICODE
+        );
+        return null;
     }
 }
